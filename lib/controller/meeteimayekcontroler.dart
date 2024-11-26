@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ai_assistant/constant/const.dart';
 import 'package:ai_assistant/model/meeteimayek/mapper.dart';
 import 'package:ai_assistant/model/meeteimayek/phonememodel.dart';
@@ -6,42 +8,43 @@ import 'package:get/get.dart';
 
 class MeeteiMayekController extends GetxController {
   String transliterate(String? text) {
+    log("Input Text : $text");
     Phoneme prev = PHI; // PHI is a `Phoneme` instance.
     List<Phoneme> phonemes = [];
     text = (text ?? '').toLowerCase();
 
-    for (int i = 0; i < text.length; i++) {
-      String next = text[i];
-      if (!((next
-              .codeUnitAt(0)
-              .isBetween('a'.codeUnitAt(0), 'z'.codeUnitAt(0))) ||
-          (next
-              .codeUnitAt(0)
-              .isBetween('0'.codeUnitAt(0), '9'.codeUnitAt(0))) ||
-          next == '.')) {
-        // Non-alphanumeric, pass-through as-is.
-        var nextPhoneme = Phoneme(next, asConsonant: next);
-        phonemes.add(nextPhoneme);
-        prev = nextPhoneme;
-        continue;
-      }
+for (int i = 0; i < text.length; i++) {
+  String next = text[i];
+  log("Processing character: $next");
+  log("Current phonemes: ${phonemes.map((p) => p.phoneme).toList()}");
 
-      // Try to match digraph phonemes (two letters).
-      var digraphPhoneme = Mapper().mapToPhonemeOrNull(prev.phoneme, next);
-      if (digraphPhoneme == null) {
-        // Use phoneme for current letter if no digraph match.
-        var nextPhoneme = Mapper().mapToPhonemeOrNull(next) ??
-            Phoneme(next, asConsonant: next); // Fallback for unknown phoneme.
-        phonemes.add(nextPhoneme);
-        prev = nextPhoneme;
-      } else {
-        // Use matched digraph phoneme.
-        phonemes
-            .removeLast(); // Remove previous phoneme to replace it with digraph.
-        phonemes.add(digraphPhoneme);
-        prev = digraphPhoneme;
-      }
+  if (!((next.codeUnitAt(0).isBetween('a'.codeUnitAt(0), 'z'.codeUnitAt(0))) ||
+      (next.codeUnitAt(0).isBetween('0'.codeUnitAt(0), '9'.codeUnitAt(0))) ||
+      next == '.')) {
+    log('Non-alphanumeric, adding as-is.');
+    var nextPhoneme = Phoneme(next, asConsonant: next);
+    phonemes.add(nextPhoneme);
+    prev = nextPhoneme;
+    continue;
+  }
+
+  var digraphPhoneme = MAPPER.mapToPhonemeOrNull(prev.phoneme, next);
+  if (digraphPhoneme == null) {
+    log("No digraph match, processing single phoneme for: $next");
+    var nextPhoneme = MAPPER.mapToPhonemeOrNull(next) ??
+        Phoneme(next, asConsonant: next);
+    phonemes.add(nextPhoneme);
+    prev = nextPhoneme;
+  } else {
+    log("Digraph match found for: ${prev.phoneme + next}");
+    if (phonemes.isNotEmpty) {
+      phonemes.removeLast();
     }
+    phonemes.add(digraphPhoneme);
+    prev = digraphPhoneme;
+  }
+}
+
 
     return _convertToMMCVC(phonemes);
   }
@@ -89,7 +92,7 @@ class MeeteiMayekController extends GetxController {
             prev = next;
           } else {
             // Add Apun Mayek if needed.
-            if (Mapper().isApunMayekPhonemesCombo(prev.phoneme, curr)) {
+            if (MAPPER.isApunMayekPhonemesCombo(prev.phoneme, curr)) {
               output.add(
                   PhonemeOutput(APUN_MAYEK_AS_PHONEME, OutputMode.CONSONANT));
             }

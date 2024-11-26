@@ -1,5 +1,6 @@
 // Supporting Constants and Enums
 
+import 'package:ai_assistant/model/meeteimayek/mapper.dart';
 import 'package:ai_assistant/model/meeteimayek/phonememodel.dart';
 
 List<Phoneme> meiteiMayekPhonemes = [
@@ -381,7 +382,7 @@ const List<List<String>> MEITEI_MAYEK_APUN_MAYEK_RULES = [
   // ["th", "w"], violated in "thwai"
   ["v", "y"],
 ];
-
+var MAPPER =  Mapper();
 final PHI = Phoneme('');
 final APUN_MAYEK_AS_PHONEME = Phoneme('\uABED', asConsonant: '\uABED');
 

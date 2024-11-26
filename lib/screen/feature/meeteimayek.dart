@@ -1,4 +1,6 @@
+import 'package:ai_assistant/controller/meeteimayekcontroler.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MeiteiMayekConverter extends StatefulWidget {
   const MeiteiMayekConverter({super.key});
@@ -27,6 +29,7 @@ class _MeiteiMayekConverterState extends State<MeiteiMayekConverter> {
 
   @override
   Widget build(BuildContext context) {
+    MeeteiMayekController mayekController = Get.put(MeeteiMayekController());
     return Scaffold(
       appBar: AppBar(
         title: const Text("Meitei Mayek Converter"),
@@ -51,7 +54,7 @@ class _MeiteiMayekConverterState extends State<MeiteiMayekConverter> {
                 ),
                 onChanged: (text) {
                   setState(() {
-                    _outputText = convertToMeiteiMayek(text);
+                    _outputText = mayekController.transliterate(text);
                   });
                 },
               ),
